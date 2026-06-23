@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Cá IoT</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🐟 HỒ CÁ THÔNG MINH</h1>
+
+        <div class="card">
+
+            <h2>Trạng thái MQTT</h2>
+
+            <p id="mqtt_status">
+                Đang kết nối...
+            </p>
+
+            <h2>Dữ liệu từ ESP32</h2>
+
+            <p id="esp_data">
+                Chưa có dữ liệu
+            </p>
+
+            <button onclick="guiLenh()">
+                Gửi tới ESP32
+            </button>
+
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script src="app.js"></script>
+
+</body>
+
+</html>

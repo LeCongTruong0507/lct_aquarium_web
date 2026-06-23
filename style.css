@@ -1,0 +1,37 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #f4f6f8;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.card {
+    width: 400px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+button {
+    padding: 12px 20px;
+    font-size: 18px;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+#mqtt_status {
+    color: blue;
+    font-weight: bold;
+}
+
+#esp_data {
+    color: green;
+    font-size: 20px;
+}
