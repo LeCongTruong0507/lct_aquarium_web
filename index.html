@@ -1,44 +1,334 @@
 <!DOCTYPE html>
-<html lang="vi">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ Cá IoT</title>
-    <link rel="stylesheet" href="style.css">
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hồ Cá IoT - Abyssal Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#b6c6ed",
+                        "surface-dim": "#00161f",
+                        "on-tertiary": "#20304f",
+                        "surface-bright": "#1f3d49",
+                        "primary-fixed": "#d6e3ff",
+                        "on-primary": "#233148",
+                        "on-secondary-fixed-variant": "#004f53",
+                        "on-primary-fixed": "#0d1c32",
+                        "on-secondary-container": "#006c71",
+                        "tertiary-container": "#061836",
+                        "inverse-surface": "#c9e7f7",
+                        "on-primary-container": "#74829d",
+                        "secondary": "#e6feff",
+                        "tertiary-fixed": "#d8e2ff",
+                        "surface-variant": "#1b3845",
+                        "primary-container": "#0a192f",
+                        "surface-container-low": "#001f2a",
+                        "secondary-fixed-dim": "#00dce5",
+                        "error": "#ffb4ab",
+                        "surface": "#00161f",
+                        "on-background": "#c9e7f7",
+                        "surface-container": "#01232f",
+                        "on-surface-variant": "#c5c6cd",
+                        "secondary-fixed": "#63f7ff",
+                        "surface-tint": "#b9c7e4",
+                        "on-tertiary-fixed": "#091b39",
+                        "on-surface": "#c9e7f7",
+                        "on-primary-fixed-variant": "#39475f",
+                        "tertiary": "#b6c6ed",
+                        "on-secondary-fixed": "#002021",
+                        "on-error": "#690005",
+                        "on-secondary": "#003739",
+                        "inverse-on-surface": "#163440",
+                        "background": "#00161f",
+                        "inverse-primary": "#515f78",
+                        "error-container": "#93000a",
+                        "outline-variant": "#44474d",
+                        "surface-container-lowest": "#001018",
+                        "primary-fixed-dim": "#b9c7e4",
+                        "outline": "#8f9097",
+                        "secondary-container": "#00f4fe",
+                        "surface-container-high": "#0e2d39",
+                        "surface-container-highest": "#1b3845",
+                        "on-tertiary-fixed-variant": "#374767",
+                        "primary": "#b9c7e4",
+                        "on-tertiary-container": "#7282a5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "container-margin-desktop": "32px",
+                        "stack-lg": "32px",
+                        "stack-md": "16px",
+                        "stack-sm": "8px",
+                        "container-margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "title-md": ["Inter"],
+                        "mono-data": ["Geist"],
+                        "body-lg": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #00161f;
+            color: #c9e7f7;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(27, 56, 69, 0.2);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            background: rgba(27, 56, 69, 0.3);
+            border: 1px solid rgba(99, 247, 255, 0.3);
+            box-shadow: 0 0 20px rgba(99, 247, 255, 0.1);
+        }
+
+        .status-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        .cyan-glow {
+            box-shadow: 0 0 15px rgba(99, 247, 255, 0.4);
+        }
+
+        .feed-btn-glow {
+            box-shadow: 0 0 25px rgba(0, 244, 254, 0.3);
+        }
+    </style>
 </head>
+<body class="min-h-screen">
+<!-- Top: Header and Connectivity Status -->
+<header class="fixed top-0 w-full bg-surface-dim/80 backdrop-blur-xl z-50 border-b border-white/10 h-16 flex justify-between items-center px-container-margin-desktop shadow-[0_0_15px_rgba(99,247,255,0.05)]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary-fixed text-3xl" data-icon="waves">waves</span>
+<h1 class="font-headline-lg text-headline-lg font-bold text-secondary-fixed tracking-tight uppercase">🐠 HỒ CÁ IOT</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-surface-variant/30 border border-white/5 text-label-caps font-label-caps text-xs" id="status">
+<span class="w-2 h-2 rounded-full bg-error status-pulse"></span>
+<span class="text-on-surface-variant">Chưa kết nối</span>
+</div>
+<div class="flex items-center gap-4 border-l border-white/10 pl-6">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-label-caps text-on-surface-variant">MQTT STATUS</p>
+<p class="text-sm font-medium text-secondary-fixed" id="mqtt_status">Đang kết nối...</p>
+</div>
+<div class="w-10 h-10 rounded-full border border-secondary-fixed/30 p-0.5 overflow-hidden">
+<img alt="Profile" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2S-pdhK8h2HKkG-V6TaKkKLAnGJIJt87WAmF5LVt4YpajEH0opS2aAm2hnWLbaaAHSBSegcOXD5WfdzocnAu6KZtyOkLTCwEPh4ioCqvJ_Pm463zgyECRcFsv9qB98CbT3RPkhzpIHY5bMNOSkeBmUmtdvCqyfHMfLA3CDOVYLm-snDI2O68DTPsHYgGjhzOiBiQhq94Kpk9cliHlhyRDFYnVHPjHzEd28xsz9SnJdzZ4aLWlL0cA4cOc3wiwrgX__x3qDR0vyORH"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-container-margin-desktop max-w-[1440px] mx-auto w-full space-y-stack-lg">
+<!-- Middle: Control cards -->
+<section>
+<div class="flex items-center justify-between mb-stack-md">
+<h2 class="font-title-md text-title-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-fixed" data-icon="tune">tune</span>
+                    Bảng Điều Khiển
+                </h2>
+<button class="text-xs font-label-caps text-secondary-fixed hover:underline flex items-center gap-1" onclick="guiLenh()">
+<span class="material-symbols-outlined text-[16px]" data-icon="send">send</span> Gửi tới ESP32
+                </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-stack-lg">
+<!-- Lighting -->
+<div class="glass-panel rounded-xl p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<div class="w-12 h-12 rounded-xl bg-secondary-fixed/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed text-2xl" data-icon="lightbulb">lightbulb</span>
+</div>
+<span class="text-[10px] font-label-caps bg-secondary-fixed/10 text-secondary-fixed px-2 py-0.5 rounded">AUTO</span>
+</div>
+<div>
+<h3 class="text-on-surface font-semibold">Đèn</h3>
+<p class="text-body-sm text-on-surface-variant">Chiếu sáng hồ cá</p>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2">
+<button class="bg-secondary-fixed/20 hover:bg-secondary-fixed/30 text-secondary-fixed py-2 rounded font-medium transition-colors text-sm" onclick="batDen()">Bật</button>
+<button class="bg-surface-variant hover:bg-surface-bright text-on-surface-variant py-2 rounded font-medium transition-colors text-sm" onclick="tatDen()">Tắt</button>
+</div>
+</div>
+<!-- Filter -->
+<div class="glass-panel rounded-xl p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<div class="w-12 h-12 rounded-xl bg-secondary-fixed/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed text-2xl" data-icon="filter_alt">filter_alt</span>
+</div>
+<span class="text-[10px] font-label-caps bg-secondary-fixed/10 text-secondary-fixed px-2 py-0.5 rounded">ACTIVE</span>
+</div>
+<div>
+<h3 class="text-on-surface font-semibold">Lọc nước</h3>
+<p class="text-body-sm text-on-surface-variant">Hệ thống làm sạch</p>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2">
+<button class="bg-secondary-fixed/20 hover:bg-secondary-fixed/30 text-secondary-fixed py-2 rounded font-medium transition-colors text-sm" onclick="batLoc()">Bật</button>
+<button class="bg-surface-variant hover:bg-surface-bright text-on-surface-variant py-2 rounded font-medium transition-colors text-sm" onclick="tatLoc()">Tắt</button>
+</div>
+</div>
+<!-- Heater -->
+<div class="glass-panel rounded-xl p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<div class="w-12 h-12 rounded-xl bg-secondary-fixed/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed text-2xl" data-icon="thermostat">thermostat</span>
+</div>
+</div>
+<div>
+<h3 class="text-on-surface font-semibold">Sưởi</h3>
+<p class="text-body-sm text-on-surface-variant">Duy trì nhiệt độ</p>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2">
+<button class="bg-secondary-fixed/20 hover:bg-secondary-fixed/30 text-secondary-fixed py-2 rounded font-medium transition-colors text-sm" onclick="batSuoi()">Bật</button>
+<button class="bg-surface-variant hover:bg-surface-bright text-on-surface-variant py-2 rounded font-medium transition-colors text-sm" onclick="tatSuoi()">Tắt</button>
+</div>
+</div>
+<!-- CO2 -->
+<div class="glass-panel rounded-xl p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<div class="w-12 h-12 rounded-xl bg-secondary-fixed/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed text-2xl" data-icon="air">air</span>
+</div>
+</div>
+<div>
+<h3 class="text-on-surface font-semibold">Co2</h3>
+<p class="text-body-sm text-on-surface-variant">Hệ thống khí nén</p>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2">
+<button class="bg-secondary-fixed/20 hover:bg-secondary-fixed/30 text-secondary-fixed py-2 rounded font-medium transition-colors text-sm" onclick="batCo2()">Bật</button>
+<button class="bg-surface-variant hover:bg-surface-bright text-on-surface-variant py-2 rounded font-medium transition-colors text-sm" onclick="tatCo2()">Tắt</button>
+</div>
+</div>
+</div>
+<!-- Feed Section -->
+<div class="glass-panel rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+<div class="z-10 text-center md:text-left">
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">Cho ăn</h3>
+<p class="text-on-surface-variant max-w-md">Kích hoạt máy cho cá ăn tự động. Đảm bảo lượng thức ăn vừa đủ để duy trì chất lượng nước.</p>
+</div>
+<div class="z-10">
+<button class="feed bg-secondary-container text-on-secondary-container px-12 py-5 rounded-full font-bold text-lg flex items-center gap-3 transition-all hover:scale-105 active:scale-95 feed-btn-glow" onclick="choAn()">
+<span class="material-symbols-outlined text-2xl" data-icon="restaurant">restaurant</span>
+                        CHO ĂN
+                    </button>
+</div>
+<!-- Abstract Background Elements -->
+<div class="absolute right-0 top-0 w-64 h-64 bg-secondary-fixed/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+<div class="absolute left-1/4 bottom-0 w-48 h-12 bg-secondary-fixed/10 rounded-full blur-2xl opacity-50"></div>
+</div>
+</section>
+<!-- Bottom: Device status monitoring -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Device Status -->
+<div class="lg:col-span-5 glass-panel rounded-xl overflow-hidden flex flex-col">
+<div class="p-6 border-b border-white/10 bg-surface-container-low/50 flex justify-between items-center">
+<h3 class="font-title-md text-title-md text-on-surface">Trạng thái thiết bị</h3>
+<button class="p-2 rounded-full hover:bg-surface-bright transition-colors" onclick="layTrangThai()">
+<span class="material-symbols-outlined text-secondary-fixed text-sm" data-icon="refresh">refresh</span>
+</button>
+</div>
+<div class="p-6 flex flex-col gap-4">
+<div class="bg-surface-container-lowest/50 rounded-lg p-4 font-mono-data text-sm border border-white/5 min-h-[100px] text-on-surface-variant whitespace-pre-wrap" id="deviceStatus">
+                        Chưa có dữ liệu
+                    </div>
+<div class="space-y-3">
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant">Nhiệt độ nước</span>
+<span class="text-secondary-fixed font-bold">26.5°C</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed w-[75%] shadow-[0_0_10px_rgba(99,247,255,0.5)]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- ESP32 Raw Data Area -->
+<div class="lg:col-span-7 glass-panel rounded-xl p-6 flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-title-md text-title-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-fixed" data-icon="memory">memory</span>
+                        Dữ liệu từ ESP32
+                    </h3>
+<span class="text-[10px] font-label-caps text-on-surface-variant tracking-widest">REAL-TIME TELEMETRY</span>
+</div>
+<div class="flex-1 bg-surface-container-lowest/50 rounded-xl p-4 border border-white/5 font-mono-data text-sm text-secondary-fixed/80 overflow-y-auto max-h-[200px]" id="esp_data">
+                    Chưa có dữ liệu
+                </div>
+<div class="mt-4 pt-4 border-t border-white/5 flex justify-end">
+<button class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface text-xs font-label-caps px-4 py-2 rounded-lg transition-colors border border-white/5" onclick="guiLenh()">
+                        XEM LỊCH SỬ LOG
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Success Toast (Notification placeholder for interactions) -->
+<div class="fixed bottom-8 right-8 glass-panel border-secondary-fixed/50 px-6 py-4 rounded-xl translate-y-24 transition-transform duration-500 z-[100] flex items-center gap-3" id="toast">
+<span class="material-symbols-outlined text-secondary-fixed" data-icon="check_circle">check_circle</span>
+<span class="text-on-surface font-medium" id="toast-msg">Lệnh đã được gửi thành công!</span>
+</div>
+<!-- Scripts -->
+<script>
+        // Placeholders for external app.js functions to ensure UI responsiveness during development
+        // Real logic is expected from app.js as per requirements
+        
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = msg;
+            toast.classList.remove('translate-y-24');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24');
+            }, 3000);
+        }
 
-<body>
-
-    <div class="container">
-
-        <h1>🐟 HỒ CÁ THÔNG MINH</h1>
-
-        <div class="card">
-
-            <h2>Trạng thái MQTT</h2>
-
-            <p id="mqtt_status">
-                Đang kết nối...
-            </p>
-
-            <h2>Dữ liệu từ ESP32</h2>
-
-            <p id="esp_data">
-                Chưa có dữ liệu
-            </p>
-
-            <button onclick="guiLenh()">
-                Gửi tới ESP32
-            </button>
-
-        </div>
-
-    </div>
-
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-    <script src="app.js"></script>
-
-</body>
-
-</html>
+        // Mock function behavior for visualization if app.js is missing
+        if (typeof batDen !== 'function') {
+            window.batDen = () => { console.log('batDen'); showToast('Đã bật đèn'); };
+            window.tatDen = () => { console.log('tatDen'); showToast('Đã tắt đèn'); };
+            window.batLoc = () => { console.log('batLoc'); showToast('Đã bật máy lọc'); };
+            window.tatLoc = () => { console.log('tatLoc'); showToast('Đã tắt máy lọc'); };
+            window.batSuoi = () => { console.log('batSuoi'); showToast('Đã bật sưởi'); };
+            window.tatSuoi = () => { console.log('tatSuoi'); showToast('Đã tắt sưởi'); };
+            window.batCo2 = () => { console.log('batCo2'); showToast('Đã bật CO2'); };
+            window.tatCo2 = () => { console.log('tatCo2'); showToast('Đã tắt CO2'); };
+            window.choAn = () => { console.log('choAn'); showToast('Đang cho ăn...'); };
+            window.guiLenh = () => { console.log('guiLenh'); showToast('Đã gửi lệnh tới ESP32'); };
+            window.layTrangThai = () => { console.log('layTrangThai'); showToast('Đang cập nhật trạng thái...'); };
+        }
+    </script>
+<script src="app.js"></script>
+</body></html>
