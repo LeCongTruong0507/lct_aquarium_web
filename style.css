@@ -1,37 +1,113 @@
-body {
-    margin: 0;
-    padding: 0;
-    background: #f4f6f8;
-    font-family: Arial, sans-serif;
+body{
+
+    margin:0;
+
+    background:#edf2f7;
+
+    font-family:Arial;
+
 }
 
-.container {
-    text-align: center;
-    margin-top: 50px;
+.container{
+
+    width:420px;
+
+    margin:auto;
+
+    margin-top:30px;
+
 }
 
-.card {
-    width: 400px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+h1{
+
+    text-align:center;
+
 }
 
-button {
-    padding: 12px 20px;
-    font-size: 18px;
-    margin-top: 15px;
-    cursor: pointer;
+.card{
+
+    background:white;
+
+    padding:20px;
+
+    margin-top:20px;
+
+    border-radius:10px;
+
+    box-shadow:0px 0px 10px #ccc;
+
+    text-align:center;
+
 }
 
-#mqtt_status {
-    color: blue;
-    font-weight: bold;
+button{
+
+    width:120px;
+
+    height:45px;
+
+    font-size:18px;
+
+    margin:8px;
+
+    cursor:pointer;
+
+    border:none;
+
+    border-radius:8px;
+
 }
 
-#esp_data {
-    color: green;
-    font-size: 20px;
+.feed{
+
+    width:260px;
+
+    height:60px;
+
+    font-size:22px;
+
+}
+
+#status{
+
+    text-align:center;
+
+    padding:12px;
+
+    border-radius:8px;
+
+    color:white;
+
+    margin-top:20px;
+
+}
+
+#deviceStatus{
+
+    margin-top:15px;
+
+    text-align:left;
+
+    background:#f5f5f5;
+
+    padding:15px;
+
+    border-radius:8px;
+
+    font-size:18px;
+
+    line-height:32px;
+
+}
+
+.online{
+
+    background:green;
+
+}
+
+.offline{
+
+    background:red;
+
 }
